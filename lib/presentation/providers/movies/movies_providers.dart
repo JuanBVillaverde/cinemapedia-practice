@@ -2,36 +2,35 @@ import 'package:cinemapedia/domain/entities/movie.dart';
 import 'package:cinemapedia/presentation/providers/movies/movies_repository_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final nowPlayingMoviesProvider = StateNotifierProvider<MoviesNotifier, List<Movie>>((ref) {
+final nowPlayingMoviesProvider =
+    StateNotifierProvider<MoviesNotifier, List<Movie>>(
+  (ref) {
+    final fecthMoreMovies = ref.watch(movieRepositoryProvider).getNowPlaying;
 
-
-  final fecthMoreMovies = ref.watch(movieRepositoryProvider).getNowPlaying;
-
-  return MoviesNotifier(
-    fetchMoreMovies: fecthMoreMovies
-  );
-
-},);
-
-
-
+    return MoviesNotifier(fetchMoreMovies: fecthMoreMovies);
+  },
+);
 
 typedef MovieCallback = Future<List<Movie>> Function({int page});
 
 class MoviesNotifier extends StateNotifier<List<Movie>> {
-  
-int currenPage = 0;
-MovieCallback fetchMoreMovies;
+  int currenPage = 0;
+  bool isLoading = false;
+  MovieCallback fetchMoreMovies;
 
-MoviesNotifier({required this.fetchMoreMovies}): super([]);
+  MoviesNotifier({required this.fetchMoreMovies}) : super([]);
 
+  Future<void> loadNextPage() async {
+    if (isLoading) return;
 
-Future<void> loadNextPage() async{
+    isLoading = true;
+    currenPage++;
 
-  currenPage++;
-  
-  final List<Movie> movies = await fetchMoreMovies(page: currenPage);
-  state = [...state, ...movies];
-}
-
+    final List<Movie> movies = await fetchMoreMovies(page: currenPage);
+    state = [...state, ...movies];
+    await Future.delayed(
+      const Duration(milliseconds: 300),
+    );
+    isLoading = false;
+  }
 }
