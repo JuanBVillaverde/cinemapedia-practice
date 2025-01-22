@@ -3,6 +3,13 @@ import 'package:intl/intl.dart';
 class HumanFormats {
   
 
+static String date(DateTime date){
+  
+    var formatter = DateFormat.MMMMd('en_US');
+    String formattedDate = formatter.format(date);
+    return formattedDate;
+}
+
 
 static String number(double number){
   final formattedNumber = NumberFormat.compactCurrency(
